@@ -172,9 +172,6 @@ class SSD1306Base(object):
             return
         if not self._bb[1] < self._bb[3]: # No pages
             return
-        if (self._bb[2]-self._bb[0]) % 16 != 0:
-            self._bb[0] = (self._bb[0] // 16) * 16
-            self._bb[2] = ( (self._bb[2]+15) // 16) * 16
         self.command(SSD1306_COLUMNADDR)
         self.command(self._bb[0])     # Column start address. (0 = reset)
         self.command(self._bb[2]-1)   # Column end address.
@@ -193,9 +190,8 @@ class SSD1306Base(object):
             # Write buffer.
             self._spi.write(partial_buffer)
         else:
-            for i in range(0, len(partial_buffer), 16):
-                control = 0x40   # Co = 0, DC = 0
-                self._i2c.writeList(control, partial_buffer[i:i+16])
+            control = 0x40   # Co = 0, DC = 0
+            self._i2c.writeList(control, partial_buffer)
         self._bb = [self.width, self._pages, 0, 0]
 
     def image(self, image):
